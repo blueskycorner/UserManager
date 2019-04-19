@@ -1,0 +1,24 @@
+{
+    "permissions": [
+      {
+        "verb": "GET",
+        "path": "/v1/users"
+      },
+      {
+        "verb": "GET",
+        "path": "/v1/users/*"
+      },
+      {
+        "verb": "POST",
+        "path": "/v1/users"
+      },
+      {
+        "verb": "PUT",
+        "path": "/v1/users/*"
+      },
+      {
+        "verb": "DELETE",
+        "path": "/v1/users/*"
+      }
+    ]
+  }

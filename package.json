@@ -1,0 +1,35 @@
+{
+  "name": "usermanager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "users-api.js",
+  "config": {
+    "profile": "ben-main",
+    "env": "dev",
+    "usersBucketName": "user-manager-backend",
+    "userPermissionsPath": "permissions"
+  },
+  "scripts": {
+    "deploy": "sls deploy",
+    "deploy-permissions": "aws s3 sync Permissions s3://%npm_package_config_usersBucketName%-%npm_package_config_env%/%npm_package_config_userPermissionsPath%/ --profile %npm_package_config_profile%"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueskycorner/UserManager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blueskycorner/UserManager/issues"
+  },
+  "homepage": "https://github.com/blueskycorner/UserManager#readme",
+  "dependencies": {
+    "aws-amplify-serverless-plugin": "^1.4.1",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^1.4.0",
+    "lambda-api": "^0.6.0"
+  },
+  "devDependencies": {
+    "serverless-domain-manager": "^3.2.1"
+  }
+}
