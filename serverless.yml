@@ -42,6 +42,7 @@ custom:
     endpointType: regional
   users-table-name: ${self:service}-${self:provider.stage}
   users-bucket-name: ${self:service}-${self:provider.stage}
+  iopipe-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYmJiZTkzOS1iMWZmLTRkNTQtOTU1Yy03MTY0MTEyN2IyNDgiLCJqdGkiOiI3OTNkMDY5NC01ZDNhLTQyYTYtODYxYS0xNjRhYmQ3N2E0NzkiLCJpYXQiOjE1NTYyODQ3MTUsImlzcyI6Imh0dHBzOi8vaW9waXBlLmNvbSIsImF1ZCI6Imh0dHBzOi8vaW9waXBlLmNvbSxodHRwczovL21ldHJpY3MtYXBpLmlvcGlwZS5jb20vZXZlbnQvLGh0dHBzOi8vZ3JhcGhxbC5pb3BpcGUuY29tIn0.KI3yAqOw-tM4by8z3sJbc7Tgnt8oQdLmgss1cAVdJnY
   admin-email: benjamin.ehlers@hardis.fr
   amplify:
     - filename: ./aws-exports.js
@@ -65,6 +66,7 @@ functions:
             type: token
     environment:
       TABLE_NAME: ${self:custom.users-table-name}
+      IOPIPE_TOKEN: ${self:custom.iopipe-token}
 
   users-authorizer:
     name: ${self:service}-${self:provider.stage}-authorizer
@@ -267,7 +269,14 @@ resources:
 #      Type: AWS::S3::Bucket
 #      Properties:
 #        BucketName: my-new-bucket
-Outputs:
-  CognitoUserPool:
-    Description: "Cognito user pool Id"
-    Value: !Ref CognitoUserPoolUserPool
+  Outputs:
+    CognitoUserPool:
+      Description: "Cognito user pool Id"
+      Value: !Ref CognitoUserPoolUserPool
+      Export: 
+        Name : 
+          Fn::Join:
+            - ''
+            -
+              - !Ref AWS::StackName
+              - '-CognitoUserPool'
