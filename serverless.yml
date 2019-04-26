@@ -55,6 +55,7 @@ functions:
     name: ${self:service}-${self:provider.stage}-api
     handler: users-api.router
     timeout: 30
+    memorySize: 128
     events:
       - http:
           path: 'v1/{proxy+}'
@@ -71,6 +72,7 @@ functions:
   users-authorizer:
     name: ${self:service}-${self:provider.stage}-authorizer
     handler: auth.handler
+    memorySize: 128
     environment:
       TOKEN_ISSUER: 
         Fn::Join:
@@ -90,6 +92,7 @@ functions:
             - !Ref CognitoUserPoolUserPool
             - '/.well-known/jwks.json'
       PERMISSION_BUCKET_NAME: ${self:custom.users-bucket-name}
+      IOPIPE_TOKEN: ${self:custom.iopipe-token}
     role: UsersAuthorizerRole
   
   post-confirmation:

@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 const util = require('util');
 const AWS = require('aws-sdk');
+const iopipeLib = require('@iopipe/iopipe');
+const logger = require('@iopipe/logger');
 
 // Set in `environment` of serverless.yml
 const TOKEN_ISSUER = process.env.TOKEN_ISSUER
@@ -9,6 +11,10 @@ const JWKS_URI = process.env.JWKS_URI;
 const PERMISSION_BUCKET_NAME = process.env.PERMISSION_BUCKET_NAME
 
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
+const iopipe = iopipeLib({
+  token: process.env.IOPIPE_TOKEN,
+  plugins: [logger({ enabled: true })]
+});
 
 console.log('Loading function');
 console.log('TOKEN_ISSUER: ' + TOKEN_ISSUER);
@@ -324,111 +330,113 @@ AuthPolicy.prototype = (function AuthPolicyClass() {
 }());
 
 
-exports.handler = (event, context, callback) => {
-    console.log('Client token:', event.authorizationToken);
-    console.log('Method ARN:', event.methodArn);
+exports.handler = iopipe(
+    function (event, context, callback) {
+        console.log('Client token:', event.authorizationToken);
+        console.log('Method ARN:', event.methodArn);
 
-    try {
-        // build apiOptions for the AuthPolicy
-        const apiOptions = {};
-        const tmp = event.methodArn.split(':');
-        const apiGatewayArnTmp = tmp[5].split('/');
-        const awsAccountId = tmp[4];
-        apiOptions.region = tmp[3];
-        apiOptions.restApiId = apiGatewayArnTmp[0];
-        apiOptions.stage = apiGatewayArnTmp[1];
+        try {
+            // build apiOptions for the AuthPolicy
+            const apiOptions = {};
+            const tmp = event.methodArn.split(':');
+            const apiGatewayArnTmp = tmp[5].split('/');
+            const awsAccountId = tmp[4];
+            apiOptions.region = tmp[3];
+            apiOptions.restApiId = apiGatewayArnTmp[0];
+            apiOptions.stage = apiGatewayArnTmp[1];
 
-        console.log('region:', apiOptions.region);
-        console.log('restApiId:', apiOptions.restApiId);
-        console.log('stage:', apiOptions.stage);
+            console.log('region:', apiOptions.region);
+            console.log('restApiId:', apiOptions.restApiId);
+            console.log('stage:', apiOptions.stage);
 
-        // We extract the token
-        const tokenParts = event.authorizationToken.split(' ');
-        const tokenValue = tokenParts[1];
+            // We extract the token
+            const tokenParts = event.authorizationToken.split(' ');
+            const tokenValue = tokenParts[1];
 
-        // Check token part
-        if (!(tokenParts[0].toLowerCase() === 'bearer' && tokenValue)) {
-            // no auth token!
+            // Check token part
+            if (!(tokenParts[0].toLowerCase() === 'bearer' && tokenValue)) {
+                // no auth token!
+                return callback('Unauthorized');
+            }
+            // Build option for the verification.
+            // Token must have audience (aud) and token issuer (iss) properly set)
+            const options = {
+                issuer: TOKEN_ISSUER
+            };
+        
+            // We first decode the token and throw an error if header doesn't have kid property
+            const decoded = jwt.decode(tokenValue, { complete: true });
+            if (!decoded || !decoded.header || !decoded.header.kid) {
+                throw new Error('invalid token');
+            }
+
+            // We build a jks client to get the public key from kid property
+            const client = jwksClient({
+                cache: true,
+                rateLimit: true,
+                jwksRequestsPerMinute: 10, // Default value
+                jwksUri: JWKS_URI
+            });
+            
+            // Fetching the public key
+            const getSigningKey = util.promisify(client.getSigningKey);
+            getSigningKey(decoded.header.kid)
+                .then((key) => {
+                    const signingKey = key.publicKey || key.rsaPublicKey;
+                    return jwt.verify(tokenValue, signingKey, options);
+                })
+                // If token validation succeeded we can build the auth response
+                .then((decoded)=> {
+                    console.log('decoded:', decoded)
+                    // TODO get a principal id and group/scope from the token
+                    const principalId = decoded.sub;
+                    
+                    // the example policy below denies access to all resources in the RestApi
+                    const policy = new AuthPolicy('*', awsAccountId, apiOptions);
+                    //policy.denyAllMethods();
+                    //policy.allowAllMethods();
+                    // TODO switch role to get the permissions
+                    var file = 'permissions/admin.json';
+                    
+                    const params = {
+                        Bucket: PERMISSION_BUCKET_NAME,
+                        Key: file,
+                    };
+                    s3.getObject(params, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                            const message = `Error getting object ${file} from bucket ${PERMISSION_BUCKET_NAME}. Make sure they exist and your bucket is in the same region as this function.`;
+                            console.log(message);
+                            callback('Invalid permissions');;
+                        } else {
+                            const admin_permissions = data.Body.toString();
+                            console.log('admin_permissions:', admin_permissions)
+                            const perm_array = JSON.parse(admin_permissions)
+                            console.log('perm_array:', perm_array.permissions)
+                            for(var i = 0; i <  perm_array.permissions.length; i++) {
+                                policy.allowMethod(perm_array.permissions[i].verb, perm_array.permissions[i].path);
+                            }
+                            //policy.allowMethod(AuthPolicy.HttpVerb.GET, "/business-units");
+                            //policy.allowMethod(AuthPolicy.HttpVerb.POST, "/business-units");
+
+                            // finally, build the policy and exit the function with adding the principal id
+                            const authResponse = policy.build();
+                            authResponse.context = {
+                                userId: principalId,
+                            };
+                            console.log('authResponse:', JSON.stringify(authResponse))
+                            return callback(null, authResponse);
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.log('Problem during token validation', err);
+                    return callback('Unauthorized');
+                });
+            
+        } catch (err) {
+            console.log('Problem during token validation', err);
             return callback('Unauthorized');
         }
-        // Build option for the verification.
-        // Token must have audience (aud) and token issuer (iss) properly set)
-        const options = {
-            issuer: TOKEN_ISSUER
-        };
-    
-        // We first decode the token and throw an error if header doesn't have kid property
-        const decoded = jwt.decode(tokenValue, { complete: true });
-        if (!decoded || !decoded.header || !decoded.header.kid) {
-            throw new Error('invalid token');
-        }
-
-        // We build a jks client to get the public key from kid property
-        const client = jwksClient({
-            cache: true,
-            rateLimit: true,
-            jwksRequestsPerMinute: 10, // Default value
-            jwksUri: JWKS_URI
-        });
-        
-        // Fetching the public key
-        const getSigningKey = util.promisify(client.getSigningKey);
-        getSigningKey(decoded.header.kid)
-            .then((key) => {
-                const signingKey = key.publicKey || key.rsaPublicKey;
-                return jwt.verify(tokenValue, signingKey, options);
-            })
-            // If token validation succeeded we can build the auth response
-            .then((decoded)=> {
-                console.log('decoded:', decoded)
-                // TODO get a principal id and group/scope from the token
-                const principalId = decoded.sub;
-                
-                // the example policy below denies access to all resources in the RestApi
-                const policy = new AuthPolicy('*', awsAccountId, apiOptions);
-                //policy.denyAllMethods();
-                //policy.allowAllMethods();
-                // TODO switch role to get the permissions
-                var file = 'permissions/admin.json';
-                
-                const params = {
-                    Bucket: PERMISSION_BUCKET_NAME,
-                    Key: file,
-                };
-                s3.getObject(params, (err, data) => {
-                    if (err) {
-                        console.log(err);
-                        const message = `Error getting object ${file} from bucket ${PERMISSION_BUCKET_NAME}. Make sure they exist and your bucket is in the same region as this function.`;
-                        console.log(message);
-                        callback('Invalid permissions');;
-                    } else {
-                        const admin_permissions = data.Body.toString();
-                        console.log('admin_permissions:', admin_permissions)
-                        const perm_array = JSON.parse(admin_permissions)
-                        console.log('perm_array:', perm_array.permissions)
-                        for(var i = 0; i <  perm_array.permissions.length; i++) {
-                            policy.allowMethod(perm_array.permissions[i].verb, perm_array.permissions[i].path);
-                        }
-                        //policy.allowMethod(AuthPolicy.HttpVerb.GET, "/business-units");
-                        //policy.allowMethod(AuthPolicy.HttpVerb.POST, "/business-units");
-
-                        // finally, build the policy and exit the function with adding the principal id
-                        const authResponse = policy.build();
-                        authResponse.context = {
-                            userId: principalId,
-                        };
-                        console.log('authResponse:', JSON.stringify(authResponse))
-                        return callback(null, authResponse);
-                    }
-                });
-            })
-            .catch(err => {
-                console.log('Problem during token validation', err);
-                return callback('Unauthorized');
-            });
-        
-    } catch (err) {
-        console.log('Problem during token validation', err);
-        return callback('Unauthorized');
     }
-};
+);
