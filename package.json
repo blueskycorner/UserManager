@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "aws-amplify-serverless-plugin": "^1.4.1",
-    "serverless-domain-manager": "^3.2.1"
+    "serverless-domain-manager": "^3.2.1",
+    "serverless-iopipe-layers": "^0.2.2"
   }
 }

@@ -12,15 +12,8 @@
 const app = require('lambda-api')({ version: 'v1.0', base: 'users/v1' })
 const uuid = require('uuid');
 const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
-const iopipeLib = require('@iopipe/iopipe');
-const logger = require('@iopipe/logger');
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
-
-const iopipe = iopipeLib({
-  token: process.env.IOPIPE_TOKEN,
-  plugins: [logger({ enabled: true })]
-});
 
 //----------------------------------------------------------------------------//
 // Define Middleware
@@ -60,7 +53,7 @@ const iopipe = iopipeLib({
 
   // Get
   app.get('/users/:user_id', (req,res) => {
-    console.log('user-id to be requested: ' + req.params.user_id);
+    console.log('user-id to be updated: ' + req.params.user_id);
     console.info("user id requesting: " + req.requestContext.authorizer.userId)
 
     if (req.params.user_id != req.requestContext.authorizer.userId) {
@@ -192,18 +185,19 @@ const iopipe = iopipeLib({
     res.status(200).json({})
   })
 
+
+
 //----------------------------------------------------------------------------//
 // Main router handler
 //----------------------------------------------------------------------------//
-  module.exports.router = iopipe(
-  function (event, context, callback) {
-    console.info(app.routes());
-    // !!!IMPORTANT: Set this flag to false, otherwise the lambda function
-    // won't quit until all DB connections are closed, which is not good
-    // if you want to freeze and reuse these connections
-    context.callbackWaitsForEmptyEventLoop = false
-  
-    // Run the request
-    app.run(event,context,callback)  
-  }
-);
+module.exports.router = (event, context, callback) => {
+  console.info(app.routes());
+  // !!!IMPORTANT: Set this flag to false, otherwise the lambda function
+  // won't quit until all DB connections are closed, which is not good
+  // if you want to freeze and reuse these connections
+  context.callbackWaitsForEmptyEventLoop = false
+
+  // Run the request
+  app.run(event,context,callback)
+
+} // end router handler
