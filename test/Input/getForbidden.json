@@ -1,0 +1,92 @@
+{
+    "resource": "/v1/{proxy+}",
+    "path": "/users/v1/users/26bedb6-aedb-4b16-b174-f8fcbf14255a",
+    "httpMethod": "GET",
+    "headers": {
+      "Accept": "*/*",
+      "accept-encoding": "gzip, deflate",
+      "Authorization": "Bearer eyJraWQiOiJnQlpLSXlJUnVCZm1RYjhjbk9OOUtnT2lnQTNJUFwvR29ROE9mS25DOXVjOD0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJiMjZiZWRiNi1hZWRiLTRiMTYtYjE3NC1mOGZjYmYxNDI1NWEiLCJldmVudF9pZCI6ImI3ZDUzMDdjLTZjZjUtMTFlOS1iM2JkLTdiZWNiZDczY2ZkMiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE1NTY4MTM4MjIsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5ldS13ZXN0LTEuYW1hem9uYXdzLmNvbVwvZXUtd2VzdC0xX1hxaWhoSEtkRSIsImV4cCI6MTU1NjgxNzQyMiwiaWF0IjoxNTU2ODEzODIyLCJqdGkiOiJiOWQ5NGU1NC1mOTM3LTRhYTktODJmOS1lN2UxN2ZkNmUyMWMiLCJjbGllbnRfaWQiOiI2bGdhMnFiNDVoaGVlbHQzMTNyMzEzdGZwMSIsInVzZXJuYW1lIjoiYjI2YmVkYjYtYWVkYi00YjE2LWIxNzQtZjhmY2JmMTQyNTVhIn0.AVhT1Z9QanuffRXUyeYbk9WovOxT1gsx6kc7CJuKTej8tXKfC6EU1C_AnL84r_LtiwPDhdTym7d7Uq21VZ24DDYclddMA0h7oSmDbl8cK2o57cQKmDmH9kYmQjgpFEuUneG-nmcGuq9XAg-NgJyt-dwMfddRSSu35SUKSGzpGiR3bf_majslyaKP7zDZoJk5v0h8-J9kES5429IDoA763WGmeJV9RDvk6tjCD3-USWR-PKNO6dbUKY-YBtpa0EMmk4OjwBvvnOC7pQur53IRM-dNO70d-3s_6GmeCmmcMjd24ZRVto1zGuImiDvgvOScJk-aCKdDqEkjkiGoSe-T5w",
+      "Content-Type": "application/json",
+      "Host": "geotracker.api.cloud-master-team.com",
+      "User-Agent": "PostmanRuntime/7.11.0",
+      "X-Amzn-Trace-Id": "Root=1-5ccb1bba-926024100085ab6024daf124",
+      "X-Forwarded-For": "77.136.84.88",
+      "X-Forwarded-Port": "443",
+      "X-Forwarded-Proto": "https"
+    },
+    "multiValueHeaders": {
+      "Accept": [
+        "*/*"
+      ],
+      "accept-encoding": [
+        "gzip, deflate"
+      ],
+      "Authorization": [
+        "Bearer eyJraWQiOiJnQlpLSXlJUnVCZm1RYjhjbk9OOUtnT2lnQTNJUFwvR29ROE9mS25DOXVjOD0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJiMjZiZWRiNi1hZWRiLTRiMTYtYjE3NC1mOGZjYmYxNDI1NWEiLCJldmVudF9pZCI6ImI3ZDUzMDdjLTZjZjUtMTFlOS1iM2JkLTdiZWNiZDczY2ZkMiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE1NTY4MTM4MjIsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5ldS13ZXN0LTEuYW1hem9uYXdzLmNvbVwvZXUtd2VzdC0xX1hxaWhoSEtkRSIsImV4cCI6MTU1NjgxNzQyMiwiaWF0IjoxNTU2ODEzODIyLCJqdGkiOiJiOWQ5NGU1NC1mOTM3LTRhYTktODJmOS1lN2UxN2ZkNmUyMWMiLCJjbGllbnRfaWQiOiI2bGdhMnFiNDVoaGVlbHQzMTNyMzEzdGZwMSIsInVzZXJuYW1lIjoiYjI2YmVkYjYtYWVkYi00YjE2LWIxNzQtZjhmY2JmMTQyNTVhIn0.AVhT1Z9QanuffRXUyeYbk9WovOxT1gsx6kc7CJuKTej8tXKfC6EU1C_AnL84r_LtiwPDhdTym7d7Uq21VZ24DDYclddMA0h7oSmDbl8cK2o57cQKmDmH9kYmQjgpFEuUneG-nmcGuq9XAg-NgJyt-dwMfddRSSu35SUKSGzpGiR3bf_majslyaKP7zDZoJk5v0h8-J9kES5429IDoA763WGmeJV9RDvk6tjCD3-USWR-PKNO6dbUKY-YBtpa0EMmk4OjwBvvnOC7pQur53IRM-dNO70d-3s_6GmeCmmcMjd24ZRVto1zGuImiDvgvOScJk-aCKdDqEkjkiGoSe-T5w"
+      ],
+      "Content-Type": [
+        "application/json"
+      ],
+      "Host": [
+        "geotracker.api.cloud-master-team.com"
+      ],
+      "User-Agent": [
+        "PostmanRuntime/7.11.0"
+      ],
+      "X-Amzn-Trace-Id": [
+        "Root=1-5ccb1bba-926024100085ab6024daf124"
+      ],
+      "X-Forwarded-For": [
+        "77.136.84.88"
+      ],
+      "X-Forwarded-Port": [
+        "443"
+      ],
+      "X-Forwarded-Proto": [
+        "https"
+      ]
+    },
+    "queryStringParameters": null,
+    "multiValueQueryStringParameters": null,
+    "pathParameters": {
+      "proxy": "users/26bedb6-aedb-4b16-b174-f8fcbf14255a"
+    },
+    "stageVariables": null,
+    "requestContext": {
+      "resourceId": "1vszcu",
+      "authorizer": {
+        "principalId": "*",
+        "integrationLatency": 9203,
+        "userId": "b26bedb6-aedb-4b16-b174-f8fcbf14255a"
+      },
+      "resourcePath": "/v1/{proxy+}",
+      "httpMethod": "GET",
+      "extendedRequestId": "ZEFFEHgFDoEF7Kw=",
+      "requestTime": "02/May/2019:16:32:58 +0000",
+      "path": "/users/v1/users/26bedb6-aedb-4b16-b174-f8fcbf14255a",
+      "accountId": "813860980995",
+      "protocol": "HTTP/1.1",
+      "stage": "dev",
+      "domainPrefix": "geotracker",
+      "requestTimeEpoch": 1556814778041,
+      "requestId": "f1c4341e-6cf7-11e9-aceb-fd4168ef3fce",
+      "identity": {
+        "cognitoIdentityPoolId": null,
+        "accountId": null,
+        "cognitoIdentityId": null,
+        "caller": null,
+        "sourceIp": "77.136.84.88",
+        "principalOrgId": null,
+        "accessKey": null,
+        "cognitoAuthenticationType": null,
+        "cognitoAuthenticationProvider": null,
+        "userArn": null,
+        "userAgent": "PostmanRuntime/7.11.0",
+        "user": null
+      },
+      "domainName": "geotracker.api.cloud-master-team.com",
+      "apiId": "wfdr5f2odi"
+    },
+    "body": null,
+    "isBase64Encoded": false
+  }
