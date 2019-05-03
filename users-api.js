@@ -14,6 +14,7 @@ const uuid = require('uuid');
 const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const userIdDontMatch = 'user-id-dont-match'
 
 //----------------------------------------------------------------------------//
 // Define Middleware
@@ -58,6 +59,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
     if (req.params.user_id != req.requestContext.authorizer.userId) {
       console.error("user to be updated and requester don't match");
+      req.app._context.iopipe.label(userIdDontMatch)
       return res.status(403).send('Forbidden');
     }
 
@@ -110,11 +112,13 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
   // Put
   app.put('/users/:user_id', (req,res) => {
+    console.log(req)
     console.log('user-id to be updated: ' + req.params.user_id);
     console.info("user id requesting: " + req.requestContext.authorizer.userId)
 
     if (req.params.user_id != req.requestContext.authorizer.userId) {
       console.error("user to be updated and requester don't match");
+      req.app._context.iopipe.label(userIdDontMatch)
       return res.status(403).send('Forbidden');
     }
     const timestamp = new Date().getTime();
@@ -191,7 +195,9 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 // Main router handler
 //----------------------------------------------------------------------------//
 module.exports.router = (event, context, callback) => {
-  console.info(app.routes());
+  console.info(event);
+  console.info(context);
+  context.iopipe.label('testLocal')
   // !!!IMPORTANT: Set this flag to false, otherwise the lambda function
   // won't quit until all DB connections are closed, which is not good
   // if you want to freeze and reuse these connections

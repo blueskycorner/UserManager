@@ -31,7 +31,7 @@ provider:
 plugins:
   - aws-amplify-serverless-plugin
   - serverless-domain-manager
-  - serverless-iopipe-layers
+  # - serverless-iopipe-layers
 
 custom:
   customDomain:
@@ -56,7 +56,9 @@ custom:
 functions:
   users-api:
     name: ${self:service}-${self:provider.stage}-api
-    handler: users-api.router
+    handler: iopipe_wrapper.handler
+    layers:
+      - arn:aws:lambda:eu-west-1:146318645305:layer:IOpipeNodeJS810:9
     timeout: 30
     memorySize: 128
     events:
@@ -70,6 +72,8 @@ functions:
             type: token
     environment:
       TABLE_NAME: ${self:custom.users-table-name}
+      IOPIPE_HANDLER: main_wrapper.router
+      IOPIPE_TOKEN: ${self:custom.iopipe.token}
 
   users-authorizer:
     name: ${self:service}-${self:provider.stage}-authorizer

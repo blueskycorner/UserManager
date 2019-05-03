@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/blueskycorner/UserManager#readme",
   "dependencies": {
+    "@iopipe/iopipe": "^1.12.8",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.4.0",
     "lambda-api": "^0.6.0"
